@@ -88,8 +88,8 @@ class UI {
 
             //Scripting of appointment elements
             const clientP = document.createElement('h2');
-            clientP.classList.add('card-title', 'font-weight-bolder');
-            clientP.textContent = client;
+            clientP.classList.add('card-title', 'font-weight-bolder', 'text-center',);
+            clientP.innerHTML = `<strong>${client}</strong>`;
             const companyP = document.createElement('p');
             const emailP = document.createElement('p');
             const dateP = document.createElement('p');
@@ -98,30 +98,30 @@ class UI {
 
 
             companyP.innerHTML = `
-                <span class="font-weight-bolder">Company: </span> ${company};
+                <span class="font-weight-bolder"> <strong>Company:</strong> </span> ${company};
             `;
             emailP.innerHTML = `
-                <span class="font-weight-bolder">Email: </span> ${email};
+                <span class="font-weight-bolder"><strong>Email:</strong> </span> ${email};
             `;
             dateP.innerHTML = `
-                <span class="font-weight-bolder">Date: </span> ${date};
+                <span class="font-weight-bolder"><strong>Date:</strong> </span> ${date};
              `;
             timeP.innerHTML = `
-                <span class="font-weight-bolder">Time: </span> ${company};
+                <span class="font-weight-bolder"><strong>Time:</strong></span> ${company};
             `;
             detailsP.innerHTML = `
-                <span class="font-weight-bolder">Details: </span> ${company};
+                <span class="font-weight-bolder"><strong>Details:</strong></span> ${company};
             `;
 
             //delete Button
             const deleteBtn = document.createElement('button');
-            deleteBtn.classList.add('btn', 'btn-danger', 'me-2')
-            deleteBtn.innerHTML = 'Delete <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+            deleteBtn.classList.add('btn', 'btn-danger', 'me-2', 'button-style')
+            deleteBtn.innerHTML = 'Delete <i class="far fa-times-circle"></i>'
             deleteBtn.onclick = () => deleteApp(id);
             //edit Button
             const editBtn = document.createElement('button');
-            editBtn.classList.add('btn', 'btn-info');
-            editBtn.innerHTML = 'Edit <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>';
+            editBtn.classList.add('btn', 'btn-info', 'button-style', 'text-white');
+            editBtn.innerHTML = 'Edit <i class="far fa-edit"></i>';
             editBtn.onclick = () => editApp(appointment);
 
             //Add paragraphs to appDiv
