@@ -10,20 +10,23 @@ const detailsInput = document.querySelector('#form-details');
 //1.2 Whole Form
 const form = document.querySelector('#management-form');
 //1.3 List where appointments will be created
-const appointentList = document.querySelector('appointments');
+const appointentList = document.querySelector('#appointments');
+//1.4 Editing input variable
+let editing;
 
 
 //2. Events
 
 eventListeners();
 
-function eventListeners(){
+function eventListeners() {
     clientNameInput.addEventListener('change', appointmentData);
     companyInput.addEventListener('change', appointmentData);
     emailInput.addEventListener('change', appointmentData);
     dateInput.addEventListener('change', appointmentData);
     timeInput.addEventListener('change', appointmentData);
     detailsInput.addEventListener('change', appointmentData);
+    form.addEventListener('submit', newAppointment);
 };
 
 //3.Main Object
@@ -34,13 +37,245 @@ const mainObj = {
     email: "",
     date: "",
     time: "",
-    details:""
+    details: ""
 };
+
+
+//5. Classes
+//5.1 UI -->all visual part: print HTML. No constructor needed.
+class UI {
+    printAlert(message, type) { //Method to print message
+        //Create divElement
+        const divMessage = document.createElement('div');
+        //Add bootstrap classes for styling
+        divMessage.classList.add('text-center', 'alert', 'd-block', 'col-12');
+        //conditional depending on the type of message (error or success)
+        if (type === 'error') {
+            divMessage.classList.add('alert-danger')
+        } else {
+            divMessage.classList.add('alert-success')
+        }
+        //add error messadge
+        divMessage.textContent = message;
+        //add divMessage to the DOM
+        document.querySelector('#content').insertBefore(divMessage, document.querySelector('#left-side'));
+        //setTimeOut to remove alert message
+        setTimeout(() => {
+            divMessage.remove();
+        }, 5000)
+    }
+    //Print appointments method
+    printAppointment({
+        appointments
+    }) {
+        this.cleanHTML();
+
+        appointments.forEach(appointment => {
+            const {
+                client,
+                company,
+                email,
+                date,
+                time,
+                details,
+                id
+            } = appointment;
+
+            //create appointment div
+            const appDiv = document.createElement('div');
+            appDiv.classList.add('appointments-card', 'p-3');
+            appDiv.dataset.id = id;
+
+            //Scripting of appointment elements
+            const clientP = document.createElement('h2');
+            clientP.classList.add('card-title', 'font-weight-bolder');
+            clientP.textContent = client;
+            const companyP = document.createElement('p');
+            const emailP = document.createElement('p');
+            const dateP = document.createElement('p');
+            const timeP = document.createElement('p');
+            const detailsP = document.createElement('p');
+
+
+            companyP.innerHTML = `
+                <span class="font-weight-bolder">Company: </span> ${company};
+            `;
+            emailP.innerHTML = `
+                <span class="font-weight-bolder">Email: </span> ${email};
+            `;
+            dateP.innerHTML = `
+                <span class="font-weight-bolder">Date: </span> ${date};
+             `;
+            timeP.innerHTML = `
+                <span class="font-weight-bolder">Time: </span> ${company};
+            `;
+            detailsP.innerHTML = `
+                <span class="font-weight-bolder">Details: </span> ${company};
+            `;
+
+            //delete Button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('btn', 'btn-danger', 'me-2')
+            deleteBtn.innerHTML = 'Delete <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+            deleteBtn.onclick = () => deleteApp(id);
+            //edit Button
+            const editBtn = document.createElement('button');
+            editBtn.classList.add('btn', 'btn-info');
+            editBtn.innerHTML = 'Edit <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>';
+            editBtn.onclick = () => editApp(appointment);
+
+            //Add paragraphs to appDiv
+            appDiv.appendChild(clientP);
+            appDiv.appendChild(companyP);
+            appDiv.appendChild(emailP);
+            appDiv.appendChild(dateP);
+            appDiv.appendChild(timeP);
+            appDiv.appendChild(detailsP);
+            appDiv.appendChild(deleteBtn);
+            appDiv.appendChild(editBtn);
+
+            //add appDiv to HTML
+            appointentList.appendChild(appDiv);
+        });
+    }
+
+    //delete firstChild to dont get repeated appointments anytime one is added
+
+    cleanHTML() {
+        while (appointentList.firstChild) {
+            appointentList.removeChild(appointentList.firstChild);
+        }
+    }
+};
+
+//5.2 appointments--> make, edit and delete appointments
+class Appointents {
+    constructor() {
+        this.appointments = [];
+    }
+
+    addAppointment(appointment) {
+        this.appointments = [...this.appointments, appointment];
+    }
+
+    deleteOneApp(id) {
+        this.appointments = this.appointments.filter(appointment => appointment.id != id)
+    }
+
+    editingApp(updatedApp){
+        this.appointments = this.appointments.map(appointment => appointment.id === updatedApp.id ? updatedApp : appointment);
+    }
+}
+
+//6. instantiate classes
+
+const ui = new UI();
+const manageAppointments = new Appointents()
 
 //4. Functions
 //4.1 Get the data from inputs and add them to the Main Object (3)
 
 function appointmentData(e) {
     mainObj[e.target.name] = e.target.value;
-    console.log(mainObj);
 };
+
+
+//4.2 validate and add a new appointment to class Apointments
+
+function newAppointment(e) {
+    e.preventDefault();
+    const {
+        client,
+        company,
+        email,
+        date,
+        time,
+        details
+    } = mainObj; //Extract the info from the mainObj
+
+    if (client === "" || company === "" || email === "" || date === "" || time === "" || details === "") { //No empty inputs
+        ui.printAlert('All fields are required', 'error')
+    }
+
+    if(editing) {
+        //print the message
+        ui.printAlert('Edition correct');
+        //put appointemnt object into edition mode
+        manageAppointments.editingApp({...mainObj});
+        //Bring text button back to origin messge
+        form.querySelector('button[type = "submit"]').textContent = 'Add To Appointments';
+        //disabling editing mode
+        editing = false;
+    } else {
+        //Add Id to object
+        mainObj.id = Date.now();
+        //Add new appointment
+        manageAppointments.addAppointment({ ...mainObj });
+        ui.printAlert('Successfully added');
+    };
+
+    //Restart mainObj
+    restartObject();
+    //reset form
+    form.reset();
+    //print appointments
+    ui.printAppointment(manageAppointments);
+
+};
+
+//4.3 Restart the object
+
+function restartObject() {
+    mainObj.client = "";
+    mainObj.company = "";
+    mainObj.email = "";
+    mainObj.date = "";
+    mainObj.time = "",
+        mainObj.details = ""
+}
+
+//4.4 Delete appointmetns
+
+function deleteApp(id) {
+    //Delete
+    manageAppointments.deleteOneApp(id);
+    //Show succes message when deleting
+    ui.printAlert('Succesfully deleted');
+    //update appointment List
+    ui.printAppointment(manageAppointments);
+};
+
+
+//Charge data and edition mode
+
+function editApp(appointment) {
+    const {
+        client,
+        company,
+        email,
+        date,
+        time,
+        details,
+        id,
+    } = appointment;
+    //fill the inputs
+    clientNameInput.value = client;
+    companyInput.value = company;
+    emailInput.value = email;
+    dateInput.value = date;
+    timeInput.value = time;
+    detailsInput.value = details;
+
+    //Filling the mainObj with appointment values
+
+    mainObj.client = client;
+    mainObj.company = company;
+    mainObj.email = email;
+    mainObj.date = date;
+    mainObj.time = time;
+    mainObj.details = details;
+    mainObj.id = id;
+    //Change button text when editing the form
+    form.querySelector('button[type = "submit"]').textContent = 'Save changes';
+    editing = true;
+}
