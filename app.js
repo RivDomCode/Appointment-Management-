@@ -194,7 +194,9 @@ function newAppointment(e) {
     } = mainObj; //Extract the info from the mainObj
 
     if (client === "" || company === "" || email === "" || date === "" || time === "" || details === "") { //No empty inputs
-        ui.printAlert('All fields are required', 'error')
+        ui.printAlert('All fields are required', 'error');
+        
+        return;
     }
 
     if(editing) {
